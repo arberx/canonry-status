@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101828">
+    <title>Canonry Status</title>
+    <style>
+      :root {
+        color: #182230;
+        background: #f8fafc;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; }
+      a { color: inherit; }
+      .shell { max-width: 900px; margin: 0 auto; padding: 32px 24px 48px; }
+      header { display: flex; justify-content: space-between; gap: 20px; align-items: baseline; border-bottom: 1px solid #d0d5dd; padding-bottom: 22px; }
+      h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 0; }
+      .home { color: #475467; font-size: 14px; text-decoration: none; }
+      .home:hover { color: #175cd3; text-decoration: underline; }
+      .overview { margin: 28px 0 18px; border: 1px solid #d0d5dd; border-left: 5px solid #98a2b3; border-radius: 8px; padding: 20px; background: #ffffff; }
+      .overview.operational { border-left-color: #12b76a; }
+      .overview.investigating { border-left-color: #f79009; }
+      .overview.outage { border-left-color: #f04438; }
+      .overview.unknown { border-left-color: #667085; }
+      .overview h2 { margin: 0; font-size: 18px; font-weight: 650; letter-spacing: 0; }
+      .updated { margin: 7px 0 0; color: #667085; font-size: 14px; }
+      .service-list { display: grid; gap: 10px; }
+      .service { min-height: 66px; display: flex; justify-content: space-between; gap: 18px; align-items: center; border: 1px solid #d0d5dd; border-radius: 8px; padding: 16px 18px; background: #ffffff; }
+      .service-name { font-size: 15px; font-weight: 600; }
+      .badge { min-width: 104px; border-radius: 999px; padding: 5px 10px; text-align: center; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0; }
+      .badge.operational { background: #dcfae6; color: #067647; }
+      .badge.investigating { background: #fef0c7; color: #b54708; }
+      .badge.outage { background: #fee4e2; color: #b42318; }
+      .badge.unknown { background: #eaecf0; color: #475467; }
+      footer { margin-top: 28px; color: #667085; font-size: 13px; }
+      @media (max-width: 560px) {
+        .shell { padding: 24px 16px 36px; }
+        header { align-items: center; }
+        h1 { font-size: 24px; }
+        .service { align-items: flex-start; flex-direction: column; gap: 10px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <h1>Canonry Status</h1>
+        <a class="home" href="https://canonry.ai">Canonry</a>
+      </header>
+      <section id="overview" class="overview unknown" aria-live="polite">
+        <h2 id="summary">Awaiting status snapshot</h2>
+        <p id="updated" class="updated">The independent monitor has not published data yet.</p>
+      </section>
+      <section id="services" class="service-list" aria-label="Service status"></section>
+      <footer>Checked by an independent Canonry monitor.</footer>
+    </main>
+    <script>
+      const labels = {
+        operational: "Operational",
+        investigating: "Investigating",
+        outage: "Outage",
+        unknown: "Unknown"
+      };
+
+      const summaryFor = (overall) => ({
+        operational: "All systems operational",
+        investigating: "A service is being investigated",
+        outage: "A service outage is in progress",
+        unknown: "Status data unavailable"
+      }[overall] || "Status data unavailable");
+
+      const render = (data) => {
+        const overall = labels[data.overall] ? data.overall : "unknown";
+        document.getElementById("overview").className = `overview ${overall}`;
+        document.getElementById("summary").textContent = summaryFor(overall);
+
+        const updated = document.getElementById("updated");
+        if (data.updatedAt) {
+          updated.textContent = `Last checked ${new Date(data.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}`;
+        }
+
+        const services = document.getElementById("services");
+        services.replaceChildren();
+        for (const check of Array.isArray(data.checks) ? data.checks : []) {
+          const status = labels[check.status] ? check.status : "unknown";
+          const item = document.createElement("article");
+          item.className = "service";
+          const name = document.createElement("div");
+          name.className = "service-name";
+          name.textContent = check.label || "Canonry service";
+          const badge = document.createElement("span");
+          badge.className = `badge ${status}`;
+          badge.textContent = labels[status];
+          item.append(name, badge);
+          services.append(item);
+        }
+      };
+
+      fetch("status.json", { cache: "no-store" })
+        .then((response) => response.ok ? response.json() : Promise.reject(new Error("status unavailable")))
+        .then(render)
+        .catch(() => render({ overall: "unknown", checks: [] }));
+    </script>
+  </body>
+</html>
