@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-24T23:28:55Z",
+  "updatedAt": "2026-07-24T23:34:10Z",
   "overall": "operational",
   "checks": [
     {"id":"ads-health","label":"Canonry Ads API","status":"operational"},
