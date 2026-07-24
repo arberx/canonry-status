@@ -1,6 +1,13 @@
 {
   "schemaVersion": 1,
-  "updatedAt": null,
-  "overall": "unknown",
-  "checks": []
+  "updatedAt": "2026-07-24T21:17:38Z",
+  "overall": "operational",
+  "checks": [
+    {"id":"ads-health","label":"Canonry Ads API","status":"operational"},
+    {"id":"ads-landing","label":"Canonry Ads","status":"operational"},
+    {"id":"embedded-health","label":"Canonry Embed API","status":"operational"},
+    {"id":"embedded-landing","label":"Canonry Embed","status":"operational"},
+    {"id":"canonry-home","label":"Canonry Home","status":"operational"},
+    {"id":"engine","label":"Canonry Engine","status":"operational"}
+  ]
 }
