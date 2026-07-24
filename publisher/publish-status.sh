@@ -54,7 +54,7 @@ fi
 
 git -C "$REPO" pull --ff-only --quiet
 
-tmp="$(mktemp "$REPO/site/.status.json.XXXXXX")"
+tmp="$(mktemp "$REPO/docs/.status.json.XXXXXX")"
 {
   printf '{\n  "schemaVersion": 1,\n'
   printf '  "updatedAt": "%s",\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
@@ -69,9 +69,9 @@ tmp="$(mktemp "$REPO/site/.status.json.XXXXXX")"
   done
   printf '  ]\n}\n'
 } > "$tmp"
-mv "$tmp" "$REPO/site/status.json"
+mv "$tmp" "$REPO/docs/status.json"
 
-git -C "$REPO" add site/status.json
+git -C "$REPO" add docs/status.json
 if git -C "$REPO" diff --cached --quiet; then
   printf '%s' "$signature" > "$SIGNATURE_FILE"
   printf '%s' "$now_epoch" > "$PUBLISHED_AT_FILE"
